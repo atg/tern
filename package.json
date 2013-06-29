@@ -15,8 +15,7 @@
   },
   "dependencies": {
     "acorn": "0.3",
-    "marked": "~0.2.9",
-    "highlight.js": "~7.3.0"
+    "marked": "0.2.x"
   },
   "devDependencies": {
     "codemirror": "git://github.com/marijnh/CodeMirror.git",
