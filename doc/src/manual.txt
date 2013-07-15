@@ -259,6 +259,19 @@ in its set of analyzed files.
 Does not take any parameters. Returns an object with a `files`
 property holding an array of strings (the file names).
 
+[[req_node_exports]]`node_exports`:: Only available when the
+<<plugin_node,node.js plugin>> is loaded. Get the exported type of a
+node module file.
++
+Takes a `file` field to indicate the file to query for. Returns an
+object with `type`, and optional `url`, `doc`, `origin`, `start, and
+`end` properties indicating the type and metainformation for the
+exports, plus, if the exported value is an object type, a `props`
+property containing an object mapping property names of this object to
+objects holding information about the types of the properties, again
+containing `type` and optional `url`, `doc`, `origin`, `start`, and
+`end` fields.
+
 [[loc_spec]] When specifying a location, which is needed for most of
 the query types, the required `file` field may hold either a filename,
 or a string in the form `"#N"`, where `N` should be an integer
@@ -537,7 +550,10 @@ dir, and then in the `defs/` directory of the Tern distribution.
 
 By default, local files are loaded into the Tern server when they are
 opened by the editor. `loadEagerly` allows you to force some files to
-always be loaded.
+always be loaded, it may be an array of filenames or glob patterns
+(i.e. `foo/bar/*.js`). The `dontLoad` option can be used to prevent
+Tern from loading certain files. It also takes an array of file names
+or glob patterns.
 
 Finally, `plugins` is an object used to load and configure Tern
 plugins. The names of the properties refer to files that implement
