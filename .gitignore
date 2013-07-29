@@ -1,3 +1,5 @@
 .tern-port
 *.elc
 *.pyc
+
+/.DS_Store
