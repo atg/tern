@@ -358,7 +358,13 @@ var intoDOC = function (comments, aval, type) {
         }
       }
     }
-    return {type: type, end: pos};
+
+    var isOptional = false;
+    if (str.charAt(pos) == "=") {
+        ++pos;
+        isOptional = true;
+    }
+    return {type: type, end: pos, isOptional: isOptional};
   }
 
   function parseTypeOuter(scope, str, pos) {
@@ -390,6 +396,7 @@ var intoDOC = function (comments, aval, type) {
           var name = m[2].slice(parsed.end).match(/^\s*([\w$]+)/);
           if (!name) continue;
           (args || (args = Object.create(null)))[name[1]] = parsed.type;
+          if (args) args[name[1]].isOptional = parsed.isOptional;
           break;
         }
       }
@@ -415,7 +422,10 @@ var intoDOC = function (comments, aval, type) {
     if (fn && (args || ret)) {
       if (args) for (var i = 0; i < fn.argNames.length; ++i) {
         var name = fn.argNames[i], known = args[name];
-        if (known) known.propagate(fn.args[i]);
+        if (known) {
+            known.propagate(fn.args[i]);
+            if (args[name].isOptional) fn.argNames[i] += "?";
+        }
       }
       if (ret) ret.propagate(fn.retval);
     } else if (type) {
