@@ -6,6 +6,7 @@
   mod(tern, tern);
 })(function(infer, tern, require) {
   "use strict";
+<<<<<<< HEAD
   
   function resolvePath(base, path) {
     var slash = base.lastIndexOf("/");
@@ -18,10 +19,25 @@
     return path.replace(/(^|[^\.])\.\//g, "$1");
   }
   
+=======
+
+  function resolvePath(base, path) {
+    var slash = base.lastIndexOf("/");
+    var m;
+
+    if (slash >= 0) path = base.slice(0, slash + 1) + path;
+    while (m = /[^\/]*[^\/\.][^\/]*\/\.\.\//.exec(path))
+      path = path.slice(0, m.index) + path.slice(m.index + m[0].length);
+
+    return path.replace(/(^|[^\.])\.\//g, "$1");
+  }
+
+>>>>>>> OliverJAsh/patch-1
   function resolveModule(server, name) {
     server.addFile(name);
     return getModule(server._component, name);
   }
+<<<<<<< HEAD
   
   function getModule(data, name) {
     return data.modules[name] || (data.modules[name] = new infer.AVal);
@@ -31,17 +47,33 @@
     var mType = scope.getProp("module").getType();
     var exportsVal = mType && mType.getProp("exports");
   
+=======
+
+  function getModule(data, name) {
+    return data.modules[name] || (data.modules[name] = new infer.AVal);
+  }
+
+  function exportsFromScope(scope) {
+    var mType = scope.getProp("module").getType();
+    var exportsVal = mType && mType.getProp("exports");
+
+>>>>>>> OliverJAsh/patch-1
     if (!(exportsVal instanceof infer.AVal) || exportsVal.isEmpty())
       return scope.getProp("exports");
     else
       return exportsVal.types[exportsVal.types.length - 1];
   }
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> OliverJAsh/patch-1
   function buildWrappingScope(parent, origin, node) {
     var scope = new infer.Scope(parent);
     var cx = infer.cx();
     scope.node = node;
     cx.definitions.component.require.propagate(scope.defProp("require"));
+<<<<<<< HEAD
   
     var type = cx.definitions.component.Module.getProp("prototype").getType();
     var module = new infer.Obj(type);
@@ -54,10 +86,25 @@
     return scope;
   }
   
+=======
+
+    var type = cx.definitions.component.Module.getProp("prototype").getType();
+    var module = new infer.Obj(type);
+    module.propagate(scope.defProp("module"));
+
+    var exports = new infer.Obj(true, "exports", origin);
+    exports.propagate(scope.defProp("exports"));
+    exports.propagate(module.defProp("exports"));
+
+    return scope;
+  }
+
+>>>>>>> OliverJAsh/patch-1
   // Assume node.js & access to local file system
   if (require) (function() {
     var fs = require("fs");
     var path = require("path");
+<<<<<<< HEAD
     
     var win = /win/.test(process.platform);
     var resolve = path.resolve;
@@ -66,10 +113,21 @@
       return path.resolve(base, file).replace(/\\/g, "/");
     };
         
+=======
+
+    var win = /win/.test(process.platform);
+    var resolve = path.resolve;
+
+    if (win) resolve = function(base, file) {
+      return path.resolve(base, file).replace(/\\/g, "/");
+    };
+
+>>>>>>> OliverJAsh/patch-1
     resolveModule = function(server, name, relative) {
       var data = server._component;
       var dir = server.options.projectDir || "";
       var file = name;
+<<<<<<< HEAD
       
       if (data.options.dontLoad == true)
         return infer.ANull;
@@ -77,6 +135,15 @@
       if (data.options.dontLoad && new RegExp(data.options.dontLoad).test(name))
         return infer.ANull;
       
+=======
+
+      if (data.options.dontLoad == true)
+        return infer.ANull;
+
+      if (data.options.dontLoad && new RegExp(data.options.dontLoad).test(name))
+        return infer.ANull;
+
+>>>>>>> OliverJAsh/patch-1
       if (data.options.load && !new RegExp(data.options.load).test(name))
         return infer.ANull;
 
@@ -84,6 +151,7 @@
         try {
           var cmp = JSON.parse(fs.readFileSync(resolve(dir, "component.json")));
           if(!cmp.dependencies) return infer.ANull;
+<<<<<<< HEAD
           var dpx = new RegExp("(.*?)\/" + name, 'i')
           var dep = Object.keys(cmp.dependencies).filter(function (dependency) {
             return dpx.test(dpx)
@@ -91,13 +159,37 @@
           var author = dep.match(/(.*?)\/.*?/i).shift()
           author =  author.substring(0, author.length - 1)
           file = resolve(dir, "components/" + author + "-" + name)
+=======
+          var dpx = new RegExp("(.*?)\/" + name, 'i');
+          var dep = Object.keys(cmp.dependencies).filter(function(dependency) {
+            return dpx.test(dependency);
+          }).pop();
+          if (cmp.local.indexOf(name) !== -1) {
+            if (cmp.paths) {
+              cmp.paths.some(function (path) {
+                file = resolve(dir, [path, name].join('/'));
+                if (file) return true;
+              });
+            } else {
+              file = resolve(dir, name);
+            }
+          } else if (dep) {
+            var author = dep.match(/(.*?)\/.*?/i).shift();
+            author = author.substring(0, author.length - 1);
+            file = resolve(dir, "components/" + author + "-" + name);
+          }
+>>>>>>> OliverJAsh/patch-1
         } catch(e) {}
       }
 
       try {
         var pkg = JSON.parse(fs.readFileSync(resolve(modDir, file + "/component.json")));
       } catch(e) {}
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> OliverJAsh/patch-1
       if (pkg && pkg.main) {
         file += "/" + pkg.main;
       } else {
@@ -106,6 +198,7 @@
             file += "/index.js";
         } catch(e) {}
       }
+<<<<<<< HEAD
       
       if (!/\.js$/.test(file)) file += ".js";
       
@@ -113,11 +206,24 @@
         if (!fs.statSync(resolve(dir, file)).isFile()) return infer.ANull;
       } catch(e) { return infer.ANull; }
       
+=======
+
+      if (!/\.js$/.test(file)) file += ".js";
+
+      try {
+        if (!fs.statSync(resolve(dir, file)).isFile()) return infer.ANull;
+      } catch(e) { return infer.ANull; }
+
+>>>>>>> OliverJAsh/patch-1
       server.addFile(file);
       return data.modules[file] = data.modules[name] = new infer.AVal;
     };
   })();
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> OliverJAsh/patch-1
   tern.registerPlugin("component", function(server, options) {
     server._component = {
       modules: Object.create(null),
@@ -125,16 +231,25 @@
       currentFile: null,
       server: server
     };
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> OliverJAsh/patch-1
     server.on("beforeLoad", function(file) {
       this._component.currentFile = file.name.replace(/\\/g, "/");
       file.scope = buildWrappingScope(file.scope, file.name, file.ast);
     });
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> OliverJAsh/patch-1
     server.on("afterLoad", function(file) {
       this._component.currentFile = null;
       exportsFromScope(file.scope).propagate(getModule(this._component, file.name));
     });
+<<<<<<< HEAD
     
     server.on("reset", function() {
       this._component.modules = Object.create(null);
@@ -147,22 +262,49 @@
     if (!argNodes || !argNodes.length || argNodes[0].type != "Literal" || typeof argNodes[0].value != "string")
       return infer.ANull;
       
+=======
+
+    server.on("reset", function() {
+      this._component.modules = Object.create(null);
+    });
+
+    return {defs: defs};
+  });
+
+  infer.registerFunction("componentRequire", function(_self, _args, argNodes) {
+    if (!argNodes || !argNodes.length || argNodes[0].type != "Literal" || typeof argNodes[0].value != "string")
+      return infer.ANull;
+
+>>>>>>> OliverJAsh/patch-1
     var cx = infer.cx();
     var server = cx.parent;
     var data = server._component;
     var name = argNodes[0].value;
+<<<<<<< HEAD
     
     var locals = cx.definitions.component;
     if (locals[name] && /^[a-z_]*$/.test(name)) return locals[name];
     
+=======
+
+    var locals = cx.definitions.component;
+    if (locals[name] && /^[a-z_]*$/.test(name)) return locals[name];
+
+>>>>>>> OliverJAsh/patch-1
     var relative = /^\.{0,2}\//.test(name);
     if (relative) {
       if (!data.currentFile) return argNodes[0].required || infer.ANull;
       name = resolvePath(data.currentFile, name);
     }
+<<<<<<< HEAD
     
     if (name in data.modules) return data.modules[name];
     
+=======
+
+    if (name in data.modules) return data.modules[name];
+
+>>>>>>> OliverJAsh/patch-1
     var result;
     if (data.options.modules && data.options.modules.hasOwnProperty(name)) {
       var scope = buildWrappingScope(cx.topScope, name);
@@ -171,10 +313,17 @@
     } else {
       result = resolveModule(server, name, relative);
     }
+<<<<<<< HEAD
     
     return argNodes[0].required = result;
   });
   
+=======
+
+    return argNodes[0].required = result;
+  });
+
+>>>>>>> OliverJAsh/patch-1
   var defs = {
     "!name": "component",
     "!define": {
@@ -192,11 +341,19 @@
           "!doc": "Resolve path"
         },
         normalize: {
+<<<<<<< HEAD
           "!type": "fn(curr: string, path: string) > string",
           "!doc": "Normalize `path` relative to the current path"
         },
         register: {
           "!type": "fn(path: string, definition: fn)",
+=======
+          "!type": "fn(curr: string, path: string) -> string",
+          "!doc": "Normalize `path` relative to the current path"
+        },
+        register: {
+          "!type": "fn(path: string, definition: fn())",
+>>>>>>> OliverJAsh/patch-1
           "!doc": "Register module at `path` with callback `definition`"
         },
         alias: {
@@ -204,7 +361,11 @@
           "!doc": "Alias a module definition"
         },
         relative: {
+<<<<<<< HEAD
           "!type": "fn(parent: string) -> fn",
+=======
+          "!type": "fn(parent: string) -> fn()",
+>>>>>>> OliverJAsh/patch-1
           "!doc": "Return a require function relative to the `parent` path"
         }
       },
