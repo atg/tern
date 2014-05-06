@@ -17,6 +17,16 @@
     server.addDefs(defs)
   })
 
+  tern.defineKeywordProviders(function(expression) {
+    var callee = expression.node.callee;
+    if (callee.name === 'require') {
+      var cx = infer.cx(), locals = cx.definitions.node;
+      var modules = [];
+      for(var name in cx.definitions.node) modules.push(name);
+      return modules;
+    }	
+  });
+  
   var defs = {
     "!name": "node",
     "!define": {
